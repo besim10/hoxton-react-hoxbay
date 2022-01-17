@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
-function ProductDetail(props) {
+function ProductDetail() {
   const params = useParams();
   const [product, setProduct] = useState(null);
-
+  const navigate = useNavigate();
   const productsFromServer = () =>
-    fetch(`http://localhost:3001/products/${params.id}`).then((resp) =>
+    fetch(`http://localhost:3000/products/${params.id}`).then((resp) =>
       resp.json()
     );
   useEffect(() => {
@@ -15,18 +15,25 @@ function ProductDetail(props) {
     );
   }, []);
 
-  const addProductToState = (product) => {
-    let copySelectedProducts = JSON.parse(
-      JSON.stringify(props.selectedProducts)
-    );
-
-    const checkIfItsTheSameProduct = copySelectedProducts.find(
-      (targetProduct) => targetProduct.id === product.id
-    );
-    if (!checkIfItsTheSameProduct) {
-      copySelectedProducts.push(product);
-      props.setSelectedProducts(copySelectedProducts);
-    }
+  const addProductToServer = () => {
+    fetch("http://localhost:3000/basket", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...product, quantity: 1 }),
+    }).then((resp) => {
+      if (resp.ok) {
+        // managed to create the item
+        navigate("/basket");
+      } else {
+        // failed to create the item
+        // probably because the item is already there
+        // increase quantity on server
+        // then navigate to basket
+        navigate("/basket");
+      }
+    });
   };
   if (product === null) return <h1>Loading..</h1>;
   return (
@@ -38,15 +45,13 @@ function ProductDetail(props) {
           <h2>{product.title}</h2>
           <p>{product.description}</p>
           <p>£{product.price} </p>
-          <Link to="/basket">
-            <button
-              onClick={() => {
-                addProductToState(product);
-              }}
-            >
-              Add to basket
-            </button>
-          </Link>
+          <button
+            onClick={() => {
+              addProductToServer();
+            }}
+          >
+            Add to basket
+          </button>
         </div>
       </section>
     </main>

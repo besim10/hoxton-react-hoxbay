@@ -9,9 +9,9 @@ import Products from "./pages/Products";
 
 function App() {
   const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]);
+
   useEffect(() => {
-    fetch("http://localhost:3001/products")
+    fetch("http://localhost:3000/products")
       .then((resp) => resp.json())
       .then((productsFromServer) => setProducts(productsFromServer));
   }, []);
@@ -26,26 +26,10 @@ function App() {
               path="/products"
               element={<Products products={products} />}
             />
-
-            <Route
-              path="/products/:id"
-              element={
-                <ProductDetail
-                  selectedProducts={selectedProducts}
-                  setSelectedProducts={setSelectedProducts}
-                />
-              }
-            />
-
+            <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/categories" element={<Categories />} />
-            <Route
-              path="/categories/:id"
-              element={<CategoriesDetails products={products} />}
-            />
-            <Route
-              path="/basket"
-              element={<Basket selectedProducts={selectedProducts} />}
-            />
+            <Route path="/categories/:id" element={<CategoriesDetails />} />
+            <Route path="/basket" element={<Basket />} />
           </Routes>
         }
       </main>
